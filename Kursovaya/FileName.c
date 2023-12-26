@@ -20,11 +20,11 @@ struct Incident
 int StructReading(struct Incident* incident, int inc_count);
 int FileWriting(struct Incident* incident, int inc_count);
 int MakeIncidentInfo(struct Incident* incident);
-int FindRespons(struct Incident* incident, int inc_count);
-int FindCategory(struct Incident* incident, int inc_count);
+int FindRespons(struct Incident* incident, int inc_count, int j);
+int FindCategory(struct Incident* incident, int inc_count, int j);
 int MassiveSort(struct Incident* arr, int inc_count);
 
-//Îñíîâíàÿ ôóíêöèÿ
+//Основная функция
 void main()
 {
 	FILE* file;
@@ -33,18 +33,19 @@ void main()
 	struct Incident incident[100];
 	int inc_count = 0;
 	int ans1;
+	int Temp;
 	do
 	{
 		printf("---------------------------------------------------------------------------------------\n");
-		puts("Âûáåðèòå äåéñòâèå:");
-		puts("1) Ñîçäàòü çàïèñü îá èíöèäåíòå.");
-		puts("2) Âûâåñòè çàïèñàííûå â áóôåð èíöèäåíòû.");
-		puts("3) Îòñîðòèðîâàòü ïî ïðèîðèòåòó (Âûñîêèé -> Íèçêèé).");
-		puts("4) Çàïèñàòü ââåä¸ííûå èíôèäåíòû â ôàéë.");
-		puts("5) Íàéòè èíöèäåíò(-û) ïî îòâåòñòâåííîìó.");
-		puts("6) Íàéòè èíöèäåíò(-û) ïî êàòåãîðèè.");
-		puts("7) Î÷èñòèòü ôàéë.");
-		puts("8) Çàâåðøèòü ðàáîòó ïðîãðàììû.");
+		puts("Выберите действие:");
+		puts("1) Создать запись об инциденте.");
+		puts("2) Вывести записанные в буфер инциденты.");
+		puts("3) Отсортировать по приоритету (Высокий -> Низкий).");
+		puts("4) Записать введённые инфиденты в файл.");
+		puts("5) Найти инцидент(-ы) по ответственному.");
+		puts("6) Найти инцидент(-ы) по категории.");
+		puts("7) Очистить файл.");
+		puts("8) Завершить работу программы.");
 		printf("---------------------------------------------------------------------------------------\n");
 		scanf("%d", &ans1);
 		getchar();
@@ -61,7 +62,7 @@ void main()
 			}
 			else
 			{
-				printf("Ñëèøêîì ìíîãî çàïèñåé");
+				printf("Слишком много записей");
 			}
 			break;
 		case 2:
@@ -71,79 +72,96 @@ void main()
 			}
 			else
 			{
-				printf("Çàïèñàííûå èíöèäåíòû îòñóòñòâóþò\n");
+				printf("Записанные инциденты отсутствуют\n");
 			}
 			break;
 		case 3:
 			MassiveSort(incident, inc_count);
-			printf("Èíöèäåíòû îòñîðòèðîâàíû\n");
+			printf("Инциденты отсортированы\n");
 			break;
 		case 4:
 			FileWriting(incident, inc_count);
-			puts("Èíôîðìàöèÿ îá èíöèäåíòàõ çàïèñàíà â ôàéë.");
+			puts("Информация об инцидентах записана в файл.");
 			break;
 		case 5:
-			printf("Ââåäèòå èìÿ íåîáõîäèìîãî îòâåòñòâåííîãî: ");
-			FindRespons(incident, inc_count);
+			printf("Введите имя необходимого ответственного: ");
+			for (int j = 0; j < inc_count; j++)
+			{
+				Temp = FindRespons(incident, inc_count, j);
+				if (Temp != NULL)
+				{
+					printf("%s%s%s%d\n%i\n%s\n", incident[Temp].datatime, incident[Temp].discrip, incident[Temp].category, incident[Temp].priority, incident[Temp].status, incident[Temp].respons);
+				}
+			}
 			break;
 		case 6:
-			printf("Ââåäèòå íåîáõîäèìóþ êàòåãîðèþ: ");
-			FindCategory(incident, inc_count);
+			printf("Введите необходимую категорию: ");
+			for (int j = 0; j < inc_count; j++)
+			{
+				Temp = FindCategory(incident, inc_count, j);
+				if (Temp != NULL)
+				{
+					printf("%s%s%s%d\n%i\n%s\n", incident[Temp].datatime, incident[Temp].discrip, incident[Temp].category, incident[Temp].priority, incident[Temp].status, incident[Temp].respons);
+				}
+			}
 			break;
 		case 7:
 			file = fopen("data.txt", "w");
 			inc_count = 0;
-			printf("Ôàéë î÷èùåí\n");
+			printf("Файл очищен\n");
 			break;
 		default:
 			if (ans1 != 8)
 			{
-				printf("Íåïðàâèëüíîå çíà÷åíèå\n");
+				printf("Неправильное значение\n");
 			}
 			break;
 		}
 	} while (ans1 != 8);
 }
 
-//Ôóíêöèÿ çàïèñè â ôàéë
-int FileWriting(struct Incident* incident, int inc_count)
+//Функция записи в файл
+int FileWriting(struct Incident* incident, int inc_count, int j)
 {
 	FILE* file = fopen("data.txt", "w");
 	if (file == NULL)
 	{
-		printf("Ôàéë íå ñóùåñòâóþò");
+		printf("Файл не существует");
 		return;
 	}
-	for (int i = 0; i < inc_count; ++i)
+	else
 	{
-		fprintf(file, "%s%s%s%d\n%i\n%s\n", incident[i].datatime, incident[i].discrip, incident[i].category, incident[i].priority, incident[i].status, incident[i].respons);
+		for (int i = j; i < inc_count; ++i)
+		{
+			fprintf(file, "%s%s%s%d\n%i\n%s\n", incident[i].datatime, incident[i].discrip, incident[i].category, incident[i].priority, incident[i].status, incident[i].respons);
+		}
+		fclose(file);
+		return 1;
 	}
-	fclose(file);
-	return 1;
 }
 
-//Ôóíêöèÿ ñîçäàíèÿ èíöèäåíòà
+//Функция создания инцидента
 int MakeIncidentInfo(struct Incident* incident)
 {
-	printf("Ââåäèòå äàòó è âðåìÿ èíöèäåíòà (dd.mm.yyy/hh:mm:ss): ");
+	printf("Введите дату и время инцидента (dd.mm.yyy/hh:mm:ss): ");
 	fgets(incident->datatime, sizeof(incident->datatime), stdin);
-	printf("Ââåäèòå îïèñàíèå èíöèäåíòà: ");
+	printf("Введите описание инцидента: ");
 	fgets(incident->discrip, sizeof(incident->discrip), stdin);
-	printf("Ââåäèòå êàòåãîðèþ èíöèäåíòà (Óâåäîìëåíèå î êîìïüþòåðíîì èíöèäåíòå/Óâåäîìëåíèå î êîìïüþòåðíîé àòàêå/Óâåäîìëåíèå î íàëè÷èè óÿçâèìîñòè): ");
+	printf("Введите категорию инцидента (Уведомление о компьютерном инциденте/Уведомление о компьютерной атаке/Уведомление о наличии уязвимости): ");
 	fgets(incident->category, sizeof(incident->category), stdin);
-	printf("Ââåäèòå ïðèîðèòåò èíöèäåíòà (1 - Íèçêèé, 2 - Ñðåäíèé, 3 - Âûñîêèé): ");
+	printf("Введите приоритет инцидента (1 - Низкий, 2 - Средний, 3 - Высокий): ");
 	scanf("%d", &incident->priority);
 	getchar();
-	printf("Ââåäèòå ñòàòóñ èíöèäåíòà (1 - Íà ðàññìîòðåíèè, 2 - Ðàññìîòðåíî, 3 - Ïðèíÿòû ìåðû): ");
+	printf("Введите статус инцидента (1 - На рассмотрении, 2 - Рассмотрено, 3 - Приняты меры): ");
 	scanf("%d", &incident->status);
 	getchar();
-	printf("Ââåäèòå îòâåòñòâåííîãî: ");
+	printf("Введите ответственного: ");
 	fgets(incident->respons, sizeof(incident->respons), stdin);
 	printf("--------------------------------------------------------------------------------\n");
 	return 1;
 }
 
-//Ôóíêöèÿ âûâîäà â êîíñîëü èíöèäåíòîâ
+//Функция вывода в консоль инцидентов
 int StructReading(struct Incident* incident, int inc_count)
 {
 	for (int i = 0; i < inc_count; i++)
@@ -154,7 +172,7 @@ int StructReading(struct Incident* incident, int inc_count)
 	return 1;
 }
 
-//Ôóíêöèÿ ïîèñêà èíöèäåíòà ïî îòâåòñòâåííîìó
+//Функция поиска инцидента по ответственному
 int FindRespons(struct Incident* incident, int inc_count)
 {
 	char res[30];
@@ -163,14 +181,14 @@ int FindRespons(struct Incident* incident, int inc_count)
 	{
 		if (strcmp(incident[i].respons, res) == 0)
 		{
-			printf("%s%s%s%d\n%i\n%s\n", incident[i].datatime, incident[i].discrip, incident[i].category, incident[i].priority, incident[i].status, incident[i].respons);
+			return i;
+			break;
 		}
 	}
-	return 1;
 }
 
-//Ôóíêöèÿ ïîèñêà èíöèäåíòà ïî êàòåãîðèè
-int FindCategory(struct Incident* incident, int inc_count)
+//Функция поиска инцидента по категории
+int FindCategory(struct Incident* incident, int inc_count, int j)
 {
 	char cat[50];
 	fgets(cat, sizeof(cat), stdin);
@@ -178,13 +196,13 @@ int FindCategory(struct Incident* incident, int inc_count)
 	{
 		if (strcmp(incident[i].category, cat) == 0)
 		{
-			printf("%s%s%s%d\n%i\n%s\n", incident[i].datatime, incident[i].discrip, incident[i].category, incident[i].priority, incident[i].status, incident[i].respons);
+			return i;
+			break;
 		}
 	}
-	return 1;
 }
 
-//Ñîðòèðîâêà ìàññèâà ïî ïðèîðèòåòó (Âûñîêèé -> Íèçêèé)
+//Сортировка массива по приоритету (Высокий -> Низкий)
 int MassiveSort(struct Incident* arr, int inc_count)
 {
 	struct Incident temp;
