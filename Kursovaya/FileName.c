@@ -77,6 +77,7 @@ void main()
 		case 3:
 			MassiveSort(incident, inc_count);
 			printf("Èíöèäåíòû îòñîðòèðîâàíû\n");
+			break;
 		case 4:
 			FileWriting(incident, inc_count);
 			puts("Èíôîðìàöèÿ îá èíöèäåíòàõ çàïèñàíà â ôàéë.");
