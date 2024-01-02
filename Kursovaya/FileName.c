@@ -17,7 +17,6 @@ struct Incident
 	char respons[30];
 };
 
-int StructReading(struct Incident* incident, int inc_count);
 int FileWriting(struct Incident* incident, int inc_count);
 int MakeIncidentInfo(struct Incident* incident);
 int FindRespons(struct Incident* incident, int inc_count, int j);
@@ -68,7 +67,10 @@ void main()
 		case 2:
 			if (inc_count > 0)
 			{
-				StructReading(incident, inc_count);
+				for (int i = 0; i < inc_count; i++)
+				{
+					printf("%s%s%s%d\n%i\n%s\n", incident[i].datatime, incident[i].discrip, incident[i].category, incident[i].priority, incident[i].status, incident[i].respons);
+				}
 			}
 			else
 			{
@@ -161,16 +163,6 @@ int MakeIncidentInfo(struct Incident* incident)
 	return 1;
 }
 
-//Функция вывода в консоль инцидентов
-int StructReading(struct Incident* incident, int inc_count)
-{
-	for (int i = 0; i < inc_count; i++)
-	{
-		printf("%s%s%s%d\n%i\n%s\n", incident[i].datatime, incident[i].discrip, incident[i].category, incident[i].priority, incident[i].status, incident[i].respons);
-	}
-
-	return 1;
-}
 
 //Функция поиска инцидента по ответственному
 int FindRespons(struct Incident* incident, int inc_count)
