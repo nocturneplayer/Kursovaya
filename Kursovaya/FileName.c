@@ -19,8 +19,8 @@ struct Incident
 
 int FileWriting(struct Incident* incident, int inc_count);
 int MakeIncidentInfo(struct Incident* incident);
-int FindRespons(struct Incident* incident, int inc_count, int j);
-int FindCategory(struct Incident* incident, int inc_count, int j);
+struct Incident FindRespons(struct Incident* incident, int inc_count, int j, char* res);
+struct Incident FindCategory(struct Incident* incident, int inc_count, int j, char* cat);
 int MassiveSort(struct Incident* arr, int inc_count);
 
 //Основная функция
@@ -32,7 +32,6 @@ void main()
 	struct Incident incident[100];
 	int inc_count = 0;
 	int ans1;
-	int Temp;
 	do
 	{
 		printf("---------------------------------------------------------------------------------------\n");
@@ -87,23 +86,27 @@ void main()
 			break;
 		case 5:
 			printf("Введите имя необходимого ответственного: ");
+			char res[30];
+			fgets(res, sizeof(res), stdin);
 			for (int j = 0; j < inc_count; j++)
 			{
-				Temp = FindRespons(incident, inc_count, j);
-				if (Temp != NULL)
-				{
-					printf("%s%s%s%d\n%i\n%s\n", incident[Temp].datatime, incident[Temp].discrip, incident[Temp].category, incident[Temp].priority, incident[Temp].status, incident[Temp].respons);
+				struct Incident Temp = FindRespons(incident, inc_count, j, res);
+				if (Temp.priority != 0)
+				{ 
+					printf("%s%s%s%d\n%i\n%s\n", Temp.datatime, Temp.discrip, Temp.category, Temp.priority, Temp.status, Temp.respons);
 				}
 			}
 			break;
 		case 6:
 			printf("Введите необходимую категорию: ");
+			char cat[50];
+			fgets(cat, sizeof(cat), stdin);
 			for (int j = 0; j < inc_count; j++)
 			{
-				Temp = FindCategory(incident, inc_count, j);
-				if (Temp != NULL)
+				struct Incident Temp = FindCategory(incident, inc_count, j, cat);
+				if (Temp.priority != 0)
 				{
-					printf("%s%s%s%d\n%i\n%s\n", incident[Temp].datatime, incident[Temp].discrip, incident[Temp].category, incident[Temp].priority, incident[Temp].status, incident[Temp].respons);
+					printf("%s%s%s%d\n%i\n%s\n", Temp.datatime, Temp.discrip, Temp.category, Temp.priority, Temp.status, Temp.respons);
 				}
 			}
 			break;
@@ -123,7 +126,7 @@ void main()
 }
 
 //Функция записи в файл
-int FileWriting(struct Incident* incident, int inc_count, int j)
+int FileWriting(struct Incident* incident, int inc_count)
 {
 	FILE* file = fopen("data.txt", "w");
 	if (file == NULL)
@@ -133,7 +136,7 @@ int FileWriting(struct Incident* incident, int inc_count, int j)
 	}
 	else
 	{
-		for (int i = j; i < inc_count; ++i)
+		for (int i = 0; i < inc_count; ++i)
 		{
 			fprintf(file, "%s%s%s%d\n%i\n%s\n", incident[i].datatime, incident[i].discrip, incident[i].category, incident[i].priority, incident[i].status, incident[i].respons);
 		}
@@ -165,32 +168,30 @@ int MakeIncidentInfo(struct Incident* incident)
 
 
 //Функция поиска инцидента по ответственному
-int FindRespons(struct Incident* incident, int inc_count)
+struct Incident FindRespons(struct Incident* incident, int inc_count, int j, char* res)
 {
-	char res[30];
-	fgets(res, sizeof(res), stdin);
-	for (int i = 0; i < inc_count; i++)
+	if (strcmp(incident[j].respons, res) == 0)
 	{
-		if (strcmp(incident[i].respons, res) == 0)
-		{
-			return i;
-			break;
-		}
+		return incident[j];
+	}
+	else
+	{
+		struct Incident default_incident = { "", "", "", 0, 0, "" };
+		return default_incident;
 	}
 }
 
 //Функция поиска инцидента по категории
-int FindCategory(struct Incident* incident, int inc_count, int j)
+struct Incident FindCategory(struct Incident* incident, int inc_count, int j, char* cat)
 {
-	char cat[50];
-	fgets(cat, sizeof(cat), stdin);
-	for (int i = 0; i < inc_count; i++)
+	if (strcmp(incident[j].category, cat) == 0)
 	{
-		if (strcmp(incident[i].category, cat) == 0)
-		{
-			return i;
-			break;
-		}
+		return incident[j];
+	}
+	else
+	{
+		struct Incident default_incident = { "", "", "", 0, 0, "" };
+		return default_incident;
 	}
 }
 
