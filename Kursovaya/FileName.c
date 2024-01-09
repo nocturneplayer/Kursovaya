@@ -19,8 +19,8 @@ struct Incident
 
 int FileWriting(struct Incident* incident, int inc_count);
 int MakeIncidentInfo(struct Incident* incident);
-struct Incident FindRespons(struct Incident* incident, int inc_count, int j, char* res);
-struct Incident FindCategory(struct Incident* incident, int inc_count, int j, char* cat);
+struct Incident* FindRespons(struct Incident* incident, int inc_count, char* res);
+struct Incident* FindCategory(struct Incident* incident, int inc_count, char* cat);
 int MassiveSort(struct Incident* arr, int inc_count);
 
 //Основная функция
@@ -32,6 +32,7 @@ void main()
 	struct Incident incident[100];
 	int inc_count = 0;
 	int ans1;
+	struct Incident Temp;
 	do
 	{
 		printf("---------------------------------------------------------------------------------------\n");
@@ -90,9 +91,9 @@ void main()
 			fgets(res, sizeof(res), stdin);
 			for (int j = 0; j < inc_count; j++)
 			{
-				struct Incident Temp = FindRespons(incident, inc_count, j, res);
-				if (Temp.priority != 0)
-				{ 
+				Temp = FindRespons(incident, inc_count, res)[j];
+				if (Temp.priority > 0)
+				{
 					printf("%s%s%s%d\n%i\n%s\n", Temp.datatime, Temp.discrip, Temp.category, Temp.priority, Temp.status, Temp.respons);
 				}
 			}
@@ -103,8 +104,8 @@ void main()
 			fgets(cat, sizeof(cat), stdin);
 			for (int j = 0; j < inc_count; j++)
 			{
-				struct Incident Temp = FindCategory(incident, inc_count, j, cat);
-				if (Temp.priority != 0)
+				Temp = FindCategory(incident, inc_count, cat)[j];
+				if (Temp.priority > 0)
 				{
 					printf("%s%s%s%d\n%i\n%s\n", Temp.datatime, Temp.discrip, Temp.category, Temp.priority, Temp.status, Temp.respons);
 				}
@@ -168,31 +169,45 @@ int MakeIncidentInfo(struct Incident* incident)
 
 
 //Функция поиска инцидента по ответственному
-struct Incident FindRespons(struct Incident* incident, int inc_count, int j, char* res)
+struct Incident* FindRespons(struct Incident* incident, int inc_count, char* res)
 {
-	if (strcmp(incident[j].respons, res) == 0)
+	struct Incident inc_respons[100];
+	int res_count = 0;
+	struct Incident blank = { "", "", "", 0, 0, "" };
+	for (int i = 0; i < inc_count; i++)
 	{
-		return incident[j];
+		if (strcmp(incident[i].respons, res) == 0)
+		{
+			inc_respons[res_count] = incident[i];
+			res_count++;
+		}
+		else
+		{
+			inc_respons[res_count] = blank;
+		}
 	}
-	else
-	{
-		struct Incident default_incident = { "", "", "", 0, 0, "" };
-		return default_incident;
-	}
+	return inc_respons;
 }
 
 //Функция поиска инцидента по категории
-struct Incident FindCategory(struct Incident* incident, int inc_count, int j, char* cat)
+struct Incident* FindCategory(struct Incident* incident, int inc_count, char* cat)
 {
-	if (strcmp(incident[j].category, cat) == 0)
+	struct Incident inc_category[100];
+	int cat_count = 0;
+	struct Incident blank = { "", "", "", 0, 0, "" };
+	for (int i = 0; i < inc_count; i++)
 	{
-		return incident[j];
+		if (strcmp(incident[i].category, cat) == 0)
+		{
+			inc_category[cat_count] = incident[i];
+			cat_count++;
+		}
+		else
+		{
+			inc_category[cat_count] = blank;
+		}
 	}
-	else
-	{
-		struct Incident default_incident = { "", "", "", 0, 0, "" };
-		return default_incident;
-	}
+	return inc_category;
 }
 
 //Сортировка массива по приоритету (Высокий -> Низкий)
